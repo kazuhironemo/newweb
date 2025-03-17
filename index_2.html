@@ -88,16 +88,16 @@
       const api = "https://koyomi.zingsystem.com/api/";
 
       // フォームの送信イベントを処理
-      document
-        .getElementById("paramForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // フォームのデフォルト動作を無効化
 
-          // フォームから入力値を取得
-          const year = document.getElementById("year").value;
-          const month = document.getElementById("month").value;
-          const day = document.getElementById("day").value;
+      $("#paramForm").submit(function (event) {
+        event.preventDefault(); // フォームのデフォルト動作を無効化
 
+        // フォームから入力値を取得
+        const year = $("#year").val();
+        const month = $("#month").val();
+        const day = $("#day").val();
+
+        
           const param = {
             mode: "m",
             cnt: "12",
