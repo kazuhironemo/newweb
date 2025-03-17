@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <h1><span id="area"></span> 暦</h1>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>曜日</th>
+            <th>祝日</th>
+            <th>六曜</th>
+            <th>干支</th>
+            <th>和暦</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- データがここに挿入されます -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      const datelist = {
+        "2025-01-01": {
+          week: "水",
+          inreki: "睦月",
+          gengo: "令和",
+          wareki: 7,
+          zyusi: "庚",
+          zyunisi: "午",
+          eto: "巳",
+          sekki: "",
+          kyurekiy: 2024,
+          kyurekim: 12,
+          kyurekid: 2,
+          rokuyou: "先勝",
+          holiday: "元日",
+          hitotubuflg: false,
+          tensyabiflg: false,
+          daimyoubiflg: true,
+        },
+        "2025-01-02": {
+          week: "木",
+          inreki: "睦月",
+          gengo: "令和",
+          wareki: 7,
+          zyusi: "辛",
+          zyunisi: "未",
+          eto: "巳",
+          sekki: "",
+          kyurekiy: 2024,
+          kyurekim: 12,
+          kyurekid: 3,
+          rokuyou: "友引",
+          holiday: "",
+          hitotubuflg: false,
+          tensyabiflg: false,
+          daimyoubiflg: true,
+        },
+        "2025-01-03": {
+          week: "金",
+          inreki: "睦月",
+          gengo: "令和",
+          wareki: 7,
+          zyusi: "壬",
+          zyunisi: "申",
+          eto: "巳",
+          sekki: "",
+          kyurekiy: 2024,
+          kyurekim: 12,
+          kyurekid: 4,
+          rokuyou: "先負",
+          holiday: "",
+          hitotubuflg: false,
+          tensyabiflg: false,
+          daimyoubiflg: true,
+        },
+      };
+
+      // テーブルにデータを挿入する関数
+      function displayData(data) {
+        const $tableBody = document.querySelector("#dataTable tbody");
+        $tableBody.innerHTML = ""; // 既存の行をクリア
+
+        Object.keys(data).forEach((date) => {
+          const item = data[date];
+          const row = `
+              <tr>
+                <td>${date}</td>
+                <td>${item.week}</td>
+                <td class="${item.holiday ? "holiday" : ""}">${
+            item.holiday || "なし"
+          }</td>
+                <td>${item.rokuyou}</td>
+                <td>${item.eto}</td>
+                <td>${item.gengo} ${item.wareki}年</td>
+              </tr>
+            `;
+          $tableBody.insertAdjacentHTML("beforeend", row);
+        });
+      }
+
+      // データを表示
+      displayData(datelist);
+    </script>
+  </body>
+</html>

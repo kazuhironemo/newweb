@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>暦情報</title>
+		<style>
+			table {
+				border: 1px #666666 solid;
+				border-collapse: collapse;
+				font-color: #111111;
+			}
+			td {
+				border: 1px solid gray;
+				font-size: 10px;
+			}
+			.monday,
+			.tuesday,
+			.wednesday,
+			.thursday,
+			.friday {
+				color: #000000;
+			}
+			.saturday {
+				color: #0000cc;
+				background-color: #ccffff;
+			}
+			.sunday {
+				color: #ff0000;
+				background-color: #ffeeff;
+			}
+		</style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+		<script>
+			function fetchKoyomiData() {
+				return $.ajax({
+					url: "https://koyomi.zingsystem.com/api/",
+					type: "POST",
+					dataType: "json",
+					data: {
+						mode: "m",
+						cnt: "1",
+						targetyyyy: new Date().getFullYear(), // 何年から
+						targetmm: new Date().getMonth() + 1, // 何月から
+						targetdd: new Date().getDate(), // 何日から
+					},
+				});
+			}
+
+			function generateCalendar(data) {
+				const starttimestamp_date = new Date(
+					new Date().getFullYear(),
+					new Date().getMonth(),
+					1
+				); // 月初
+				const stoptimestamp_date = new Date(
+					new Date().getFullYear(),
+					new Date().getMonth() + 1,
+					1
+				); // 翌月初
+				const w = starttimestamp_date.getDay(); // 月初の曜日
+
+				let cell = 0;
+				let tableHtml = `<table><tbody>
+								<tr>
+										<td>月</td><td>火</td><td>水</td><td>木</td><td>金</td><td class="saturday">土</td><td class="sunday">日</td>
+								</tr>
+								<tr>`;
+
+				for (let i = 1; i < w; i++) {
+					tableHtml += `<td></td>`;
+				}
+
+				for (
+					let i = starttimestamp_date;
+					i < stoptimestamp_date;
+					i.setDate(i.getDate() + 1)
+				) {
+					// 月末まで
+					const dateStr = `${i.getFullYear()}-${String(
+						i.getMonth() + 1
+					).padStart(2, "0")}-${String(i.getDate()).padStart(2, "0")}`; // 日付文字列
+					const date = data.datelist[dateStr]; // 日付情報
+					let colorClass = "monday";
+					if (date) {
+						if (date.week === "日") colorClass = "sunday";
+						else if (date.week === "土") colorClass = "saturday";
+						else if (date.holiday !== "") colorClass = "sunday";
+					}
+
+					if (cell === 0) {
+						cell = w;
+					} else if (cell === 1) {
+						tableHtml += `<tr>`;
+					}
+
+					tableHtml += `<td class="${colorClass}">
+										<span style="font-size: 20px;">${i.getDate()}</span><br>
+										<span style="font-size: 12px;">旧${date.kyurekim}月${date.kyurekid}日</span><br>
+										${date.sekki}<br>
+										${date.rokuyou}<br>
+										${date.zyusi}${date.zyunisi}<br>
+										${date.holiday}<br>
+										<span style="color: #FF0000">${
+											date.hitotubuflg == "true" ? "一粒万倍日<br>" : ""
+										}</span>
+										<span style="color: #FF0000">${
+											date.tensyabiflg == "true" ? "天赦日<br>" : ""
+										}</span>
+										<span style="color: #FF0000">${
+											date.daimyoubiflg == "true" ? "大明日<br>" : ""
+										}</span>
+								</td>`;
+
+					if (cell === 7) {
+						cell = 1;
+						tableHtml += `</tr>`;
+					} else {
+						++cell;
+					}
+				}
+
+				tableHtml += `</tbody></table>`;
+				$("#calendar").html(tableHtml);
+			}
+
+			$(document).ready(function () {
+				fetchKoyomiData()
+					.done(function (data) {
+						generateCalendar(data);
+					})
+					.fail(function (jqXHR, textStatus, errorThrown) {
+						console.error(
+							"API request failed: " + textStatus + ", " + errorThrown
+						);
+					});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="calendar"></div>
+	</body>
+</html>
