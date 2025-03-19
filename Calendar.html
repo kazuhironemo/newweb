@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>カレンダー</title>
+    <style>
+      #layout {
+        display: grid;
+        grid-template-rows: repeat(4, 800px);
+        grid-template-columns: repeat(3, 32%);
+        gap: 10px;
+        background-color: #ffffff;
+        justify-content: center;
+      }
+      #layout > div {
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #ffffff;
+      }
+
+      table {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+      }
+
+      th,
+      td {
+        border: 1px solid #ccc;
+        text-align: center;
+        vertical-align: middle;
+        word-wrap: break-word; /* 長い文字列を折り返す */
+      }
+
+      td {
+        height: 100px; /* セルの高さを固定 */
+      }
+
+      th {
+        background-color: #f0f0f0; /* ヘッダーの背景色 */
+        font-weight: bold; /* ヘッダーの文字を太字に */
+        padding: 5px; /* パディングを小さく */
+        height: 40px; /* 行の高さを小さく */
+        line-height: 1; /* 行間を詰める */
+      }
+
+      th:nth-child(1) {
+        color: red; /* 日曜日を赤色 */
+      }
+
+      th:nth-child(7) {
+        color: blue; /* 土曜日を青色 */
+      }
+
+      td div {
+        margin: 5px 0; /* 各要素の間隔を調整 */
+        line-height: 1.2; /* 行間を固定 */
+        overflow: hidden; /* 内容がはみ出さないようにする */
+        text-overflow: ellipsis; /* 内容が長い場合に省略記号を表示 */
+        white-space: nowrap; /* テキストを1行に制限 */
+      }
+
+      td div.date {
+        font-size: 1.5em; /* 日付の数字を大きく */
+        font-weight: bold; /* 日付を強調 */
+      }
+
+      td.sunday div.date,
+      td.holiday div.date {
+        color: red; /* 日曜日と祝祭日は赤色 */
+      }
+
+      td.saturday div.date {
+        color: blue; /* 土曜日は青色 */
+      }
+
+      td div.holiday {
+        font-size: 0.8em; /* 祝祭日のフォントを小さく */
+        color: red; /* 祝祭日は赤色 */
+      }
+
+      td div.sekki {
+        font-size: 0.8em; /* 24節気のフォントを小さく */
+        color: green; /* 24節気は緑色 */
+      }
+
+      td div.rokuyou {
+        font-size: 0.8em; /* 六曜のフォントを小さく */
+        color: blue; /* 六曜は青色 */
+      }
+
+      h3 {
+        text-align: center;
+        font-size: 1.5em;
+        margin: 10px 0;
+      }
+    </style>
+    <style>
+      body {
+        background-color: #121212; /* 背景をダークグレーに */
+        color: #ffffff; /* 文字色を白に */
+        font-family: Arial, sans-serif;
+      }
+
+      #layout {
+        background-color: #403f3f; /* カレンダー全体の背景色 */
+      }
+
+      #layout > div {
+        border: 1px solid #333333; /* カレンダーの枠線を暗い色に */
+        background-color: #373737; /* カレンダーの背景色 */
+        color: #ffffff; /* カレンダー内の文字色 */
+      }
+
+      table {
+        background-color: #1e1e1e; /* テーブルの背景色 */
+        color: #ffffff; /* テーブル内の文字色 */
+      }
+
+      th {
+        background-color: #333333; /* ヘッダーの背景色 */
+        color: #ffffff; /* ヘッダーの文字色 */
+      }
+
+      td {
+        background-color: #2b2b2b; /* セルの背景色 */
+        color: #ffffff; /* セルの文字色 */
+      }
+
+      td.sunday div.date,
+      td.holiday div.date {
+        color: #ff6b6b; /* 日曜日と祝祭日の文字色を赤に */
+      }
+
+      td.saturday div.date {
+        color: #4fc3f7; /* 土曜日の文字色を青に */
+      }
+
+      td div.holiday {
+        color: #ff6b6b; /* 祝祭日の文字色を赤に */
+      }
+
+      td div.sekki {
+        color: #81c784; /* 24節気の文字色を緑に */
+      }
+
+      td div.rokuyou {
+        color: #64b5f6; /* 六曜の文字色を青に */
+      }
+
+      h3 {
+        color: #ffffff; /* 月のタイトルの文字色 */
+      }
+
+      #yearDisplay {
+        color: #ffffff; /* 年表示の文字色 */
+      }
+
+      input,
+      button {
+        background-color: #333333; /* 入力フィールドとボタンの背景色 */
+        color: #ffffff; /* 入力フィールドとボタンの文字色 */
+        border: 1px solid #555555; /* 入力フィールドとボタンの枠線 */
+        padding: 5px;
+        border-radius: 5px;
+      }
+
+      input:focus,
+      button:hover {
+        background-color: #555555; /* フォーカス時やホバー時の背景色 */
+      }
+    </style>
+  </head>
+
+
+  <body>
+    <div
+      id="yearDisplay"
+      style="text-align: center; font-size: 2em; margin: 20px 0"
+    >
+      <script>
+        document.write(new Date().getFullYear() + "年");
+      </script>
+    </div>
+    <div>
+      <label for="yearInput">年を入力してください:</label>
+      <input type="number" id="yearInput" value="2026" min="1900" max="2100" />
+      <button id="generateButton">カレンダーを生成</button>
+    </div>
+    <div id="layout">
+      <div id="layout01"></div>
+      <div id="layout02"></div>
+      <div id="layout03"></div>
+      <div id="layout04"></div>
+      <div id="layout05"></div>
+      <div id="layout06"></div>
+      <div id="layout07"></div>
+      <div id="layout08"></div>
+      <div id="layout09"></div>
+      <div id="layout10"></div>
+      <div id="layout11"></div>
+      <div id="layout12"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"> </script>
+    
+    
+    <script> 
+      const api = "https://koyomi.zingsystem.com/api/";
+      const holidays = {};
+      const sekkiData = {};
+      const rokuyouData = {};
+      const gengodata = {};
+      const warekidata = {};
+
+      window.onload = () => {
+        const yearInput = document.getElementById("yearInput");
+        const currentYear = new Date().getFullYear(); // 現在の年を取得
+        yearInput.value = currentYear; // 入力フィールドに現在の年を設定
+
+        // APIデータを取得してカレンダーを表示
+        fetchCalendarData(currentYear);
+      };
+
+      // カレンダーを生成する関数
+      function fetchCalendarData(year) {
+        const param = {
+          mode: "m",
+          cnt: "12",
+          targetyyyy: year,
+          targetmm: 1,
+          targetdd: 1,
+        };
+
+        // APIリクエストを送信
+        $.ajax({
+          url: api,
+          type: "post",
+          dataType: "json",
+          data: param,
+          cache: false,
+          success: function (data) {
+            console.log("取得したデータ:", data.datelist);
+
+            // データを格納
+            Object.keys(data.datelist).forEach((date) => {
+              const item = data.datelist[date];
+              holidays[date] = item.holiday || "&nbsp;";
+              sekkiData[date] = item.sekki || "&nbsp;";
+              rokuyouData[date] = item.rokuyou || "&nbsp;";
+              gengodata[date] = item.gengo || "&nbsp;";
+              warekidata[date] = item.wareki || "&nbsp;";
+             
+            });
+
+            // カレンダーを更新
+            displayCalendars(year);
+          },
+          error: function (xhr, status, error) {
+            console.error("APIリクエストエラー:", status, error);
+            alert("データの取得に失敗しました。");
+          },
+        });
+      }
+
+      // ボタンをクリックしたときの処理
+      document.getElementById("generateButton").addEventListener("click", () => {
+        const year = document.getElementById("yearInput").value; // 入力された年を取得
+        if (!year || isNaN(year)) {
+          alert("有効な年を入力してください");
+          return;
+        }
+
+        // APIデータを取得してカレンダーを表示
+        fetchCalendarData(year);
+      });
+
+      function generateCalendar(year, month) {
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const firstDay = new Date(year, month - 1, 1).getDay();
+        let calendarHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>日</th>
+                <th>月</th>
+                <th>火</th>
+                <th>水</th>
+                <th>木</th>
+                <th>金</th>
+                <th>土</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        let day = 1;
+        for (let i = 0; i < 6; i++) {
+          calendarHTML += "<tr>";
+          for (let j = 0; j < 7; j++) {
+            if (i === 0 && j < firstDay) {
+              calendarHTML += "<td></td>";
+            } else if (day > daysInMonth) {
+              calendarHTML += "<td></td>";
+            } else {
+              const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const holiday = holidays[dateKey] || "&nbsp;";
+              const sekki = sekkiData[dateKey] || "&nbsp;";
+              const rokuyou = rokuyouData[dateKey] || "&nbsp;";
+                    
+
+              let cellClass = "";
+              if (j === 0) cellClass = "sunday";
+              if (j === 6) cellClass = "saturday";
+              if (holiday !== "&nbsp;") cellClass = "holiday";
+
+              calendarHTML += `
+                <td class="${cellClass}">
+                  <div class="date">${day}</div>
+                  <div class="holiday">${holiday}</div>
+                  <div class="sekki">${sekki}</div>
+                  <div class="rokuyou">${rokuyou}</div>
+                </td>
+              `;
+              day++;
+            }
+          }
+          calendarHTML += "</tr>";
+        }
+
+        calendarHTML += `
+            </tbody>
+          </table>
+        `;
+        return calendarHTML;
+      }
+
+      function updateYearDisplay(year) {
+        const yearDisplay = document.getElementById("yearDisplay");
+
+        
+        // 年と元号を表示
+        yearDisplay.textContent = `${year}年 (${gengodata[`${year}-01-01`]}${warekidata[`${year}-01-01`]}年)`;
+      }
+
+      function displayCalendars(year) {
+        updateYearDisplay(year);
+        for (let i = 1; i <= 12; i++) {
+          const layoutId = `layout${String(i).padStart(2, "0")}`;
+          const layoutDiv = document.getElementById(layoutId);
+          if (layoutDiv) {
+            layoutDiv.innerHTML = `<h3>${i}月</h3>` + generateCalendar(year, i);
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
