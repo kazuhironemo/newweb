@@ -278,6 +278,8 @@
             alert("有効な年を入力してください");
             return;
           }
+          currentYear = year; // 現在の年を更新
+          fetchCalendarData(currentYear); // カレンダーを再生成
         });
       // 前年ボタンのクリックイベント
       document
