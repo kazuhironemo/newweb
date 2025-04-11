@@ -102,12 +102,30 @@
           if (data.list[i].rain !== undefined) {
             rain = data.list[i].rain["3h"];
           }
-          let date = new Date(data.list[i].dt * 1000);
-          date.setHours(date.getHours() + 9);
-          let formattedDate = date
-            .toISOString()
-            .replace("T", " ")
-            .substring(5, 16);
+
+          // 日付を取得し、日本時間に変換
+          let date = new Date(data.list[i].dt * 1000); // UNIXタイムスタンプをミリ秒に変換
+
+          // 日付をフォーマット
+          let formatter = new Intl.DateTimeFormat("ja-JP", {
+            timeZone: "Asia/Tokyo",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            weekday: "short", // 曜日を取得
+          });
+          let formattedDate = formatter.formatToParts(date);
+
+          // フォーマットされた日付と曜日を取得
+          let month = formattedDate.find((part) => part.type === "month").value;
+          let day = formattedDate.find((part) => part.type === "day").value;
+          let hour = formattedDate.find((part) => part.type === "hour").value;
+          let minute = formattedDate.find((part) => part.type === "minute").value;
+          let weekday = formattedDate.find((part) => part.type === "weekday").value;
+
+          // 日付を組み立て
+          let displayDate = `${month}/${day} ${hour}:${minute} (${weekday})`;
 
           let windDirection = data.list[i].wind.deg + 90;
           let windSpeed = data.list[i].wind.speed;
@@ -131,17 +149,17 @@
           let windArrow = `<span class="wind-direction" style="transform: rotate(${windDirection}deg); color: ${windColor};"> ➤</span>`;
 
           html += `
-        <div>
-                                                <div>日付: ${formattedDate}</div>
-                                                <div>${data.list[i].weather[0].description}<img src="${icon}${data.list[i].weather[0].icon}.png"></div>
-                                                <div>気温: ${data.list[i].main.temp}℃</div>
-                                                <div>湿度: ${data.list[i].main.humidity}%</div>
-                                                <div>気圧: ${data.list[i].main.pressure}hPa</div>
-                                                <div>風速: ${windSpeed}m/s ${windArrow}</div>
-                                                <div>雨量: ${rain}mm[3時間]</div>
-                                                <br>
-                                        </div>
-                                `;
+      <div>
+        <div>日付: ${displayDate}</div>
+        <div>${data.list[i].weather[0].description}<img src="${icon}${data.list[i].weather[0].icon}.png"></div>
+        <div>気温: ${data.list[i].main.temp}℃</div>
+        <div>湿度: ${data.list[i].main.humidity}%</div>
+        <div>気圧: ${data.list[i].main.pressure}hPa</div>
+        <div>風速: ${windSpeed}m/s ${windArrow}</div>
+        <div>雨量: ${rain}mm[3時間]</div>
+        <br>
+      </div>
+    `;
         }
         $("#view").empty().append(html);
       });
